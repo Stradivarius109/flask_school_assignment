@@ -1,0 +1,90 @@
+{% extends "bootstrap/base.html"  %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}软件测试工程师管理系统{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %}
+
+{%block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="/">软件测试工程师管理系统</a>
+		</div>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="/">首页</a></li>
+				<li><a href="/posts">事件</a></li>
+				{% if current_user.role_id==0 %}
+				<li><a href="/w_post">申请</a></li>
+				{% else %}
+				<li><a href="/approval">审批</a></li>
+				{% endif %}
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				{% if current_user.is_authenticated %}
+				<li><a href={{url_for('logout')}}>登出</a></li>
+				{% else %}
+				<li><a href={{url_for('login')}}>登入</a></li>
+				{% endif %}
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{%block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning"><button type="button" class="close" data-dismiss="alert">&times;</button>{{ message }}</div>
+    {% endfor %}
+</div>
+{% if current_user.is_authenticated %}
+	{% if current_user.role_id==1 %}
+		<div class="col-md-4">
+			{{wtf.quick_form(form,form_type='inline')}}
+		</div>
+	{% endif %}
+{% endif %}
+<div class="container">
+	{% if current_user.is_authenticated %}
+	<!-- 里面用一个权限判断，不同角色给予不同内容，导航条也是 -->
+		{% if current_user.role_id==1 %}<!-- 改成使用传入的user的内容，user由后端函数接收get参数传给 -->
+			<h1>{{user.name}}</h1>
+			<p>生日：{{user.birthday}}</p>
+			<p>邮箱：{{user.email}}</p>
+			<p>性别：{{user.sex}}</p>
+			<p>学历：{{user.education}}</p>
+			<p>住址：{{user.address}}</p>
+			<p>电话：{{user.telephone}}</p>
+			<p>工龄：{{user.workage}}</p>
+			<p>基本薪水：{{user.salary}}</p>
+			<a href="sast_api?pid={{user.id}}"><p type="button" class="btn btn-default btn-sm">当月薪水计算</p></a>
+		{% else %}
+			<h1>{{current_user.name}}</h1>
+			<p>生日：{{current_user.birthday}}</p>
+			<p>邮箱：{{current_user.email}}</p>
+			<p>性别：{{current_user.sex}}</p>
+			<p>学历：{{current_user.education}}</p>
+			<p>住址：{{current_user.address}}</p>
+			<p>电话：{{current_user.telephone}}</p>
+			<p>工龄：{{current_user.workage}}</p>
+			<p>基本薪水：{{current_user.salary}}</p>
+			<a href="sast_api?pid={{current_user.id}}"><p type="button" class="btn btn-default btn-sm">当月薪水计算</p></a>
+		{% endif %}
+	{% else %}
+	<div class="page-header">
+		<h1>未登录的用户，请登录</h1>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}
